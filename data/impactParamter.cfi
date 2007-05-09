@@ -1,0 +1,18 @@
+    
+  
+    module impactParameterTagInfos = TrackIPProducer {
+      string jetTracks = "jetTracksAssociator"
+      string primaryVertex = "offlinePrimaryVerticesFromCTFTracks"        
+      bool computeProbabilities = true
+
+      int32  MinimumNumberOfPixelHits = 1
+      int32  MinimumNumberOfHits = 8
+      double MaximumTransverseImpactParameter = 0.2
+      double MinimumTransverseMomentum = 1.0
+      double MaximumDecayLength = 1000 # 5.0
+      double MaximumChiSquared = 5.0
+      double MaximumLongitudinalImpactParameter = 17.0
+      double MaximumDistanceToJetAxis =  1000 # 0.07  
+    }
+
+
