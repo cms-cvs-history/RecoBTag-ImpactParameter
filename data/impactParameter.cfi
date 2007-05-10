@@ -4,6 +4,7 @@
       string jetTracks = "jetTracksAssociator"
       string primaryVertex = "offlinePrimaryVerticesFromCTFTracks"        
       bool computeProbabilities = true
+      bool useDB = false
 
       int32  MinimumNumberOfPixelHits = 1
       int32  MinimumNumberOfHits = 8
