@@ -1,7 +1,7 @@
 <use name=rootrflx>
 <use name=clhep>
 
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
@@ -11,6 +11,6 @@
 
 <library file=IPAnalyzer.cc name=IPAnalyzer>
   <use name=FWCore/Framework>
-  <flags SEAL_PLUGIN_NAME="IPAnalyzer">
+  <flags EDM_PLUGIN=1>
 </library>
     
