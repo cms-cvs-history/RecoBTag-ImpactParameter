@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.3 2007/05/16 11:39:49 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.5 2007/06/08 00:44:57 elmer Exp $
 //
 //
 
@@ -149,11 +149,12 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(; it != jetTracksAssociation->end(); it++, i++)
      {
         TrackRefVector tracks = it->second;
-        math::XYZVector jetMomentum;
+        math::XYZVector jetMomentum=it->first->momentum()/2.;
         if(m_directionWithTracks) 
          {
            for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
-              jetMomentum+=(**itTrack).innerMomentum();
+               if((**itTrack).numberOfValidHits() >= m_cutTotalHits )  //minimal quality cuts
+                  jetMomentum+=(**itTrack).momentum();
              }
          }
           else
@@ -161,13 +162,13 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             jetMomentum=it->first->momentum();
          } 
         GlobalVector direction(jetMomentum.x(),jetMomentum.y(),jetMomentum.z());
-        
         TrackRefVector selectedTracks;
         vector<Measurement1D> ip3Dv,ip2Dv,dLenv,jetDistv;
         vector<float> prob2D,prob3D;
        for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
              const Track & track = **itTrack;
-             const TransientTrack & transientTrack = builder->build(&(**itTrack));
+     	     const TransientTrack & transientTrack = builder->build(&(**itTrack));
+           
              //FIXME: this stuff is computed twice. transienttrack like container in IPTools for caching? 
              //       is it needed? does it matter at HLT?
              float distToAxis = IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
@@ -175,7 +176,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          if( track.pt() > m_cutMinPt  &&                          // minimum pt
                  fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
-                 track.recHitsSize() >= m_cutTotalHits &&         // min num tracker hits
+                 track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
                  fabs(track.dz()-pvZ) < m_cutMaxLIP &&            // z-impact parameter
                  track.normalizedChi2() < m_cutMaxChiSquared &&   // normalized chi2
                  fabs(distToAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
@@ -211,7 +212,6 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
     std::auto_ptr<reco::TrackIPTagInfoCollection> result(outCollection);
    iEvent.put(result);
-   cout << "done"  << endl;
  
    if(!pvFound) delete pv; //dummy pv deleted
    delete pvRef;
@@ -238,7 +238,6 @@ using namespace edm::eventsetup;
 
    if(cacheId2D!=m_calibrationCacheId2D || cacheId3D!=m_calibrationCacheId3D  )  //Calibration changed
    {
-//     cout<< "Calibration data changed" << endl;
      //iSetup.get<BTagTrackProbabilityRcd>().get(calib);
      ESHandle<TrackProbabilityCalibration> calib2DHandle;
      iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
@@ -253,13 +252,11 @@ using namespace edm::eventsetup;
 
      for(size_t i=0;i<ca3D->data.size(); i++)    
      {
-//        cout <<  "  Adding category" << endl;
         calib3d->addEntry(TrackClassFilterCategory(ca3D->data[i].category),ca3D->data[i].histogram); // convert category data to filtering category
      }
     
      for(size_t i=0;i<ca2D->data.size(); i++)    
      {
-//        cout <<  "  Adding category" << endl;
         calib2d->addEntry(TrackClassFilterCategory(ca2D->data[i].category),ca2D->data[i].histogram); // convert category data to filtering category
      }
   
