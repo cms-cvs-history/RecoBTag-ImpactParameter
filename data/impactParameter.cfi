@@ -6,7 +6,7 @@
       bool computeProbabilities = true
       bool useDB = false
 
-      int32  minimumNumberOfPixelHits = 1
+      int32  minimumNumberOfPixelHits = 2
       int32  minimumNumberOfHits = 8
       double maximumTransverseImpactParameter = 0.2
       double minimumTransverseMomentum = 1.0
