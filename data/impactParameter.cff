@@ -1,3 +1,25 @@
 include "TrackingTools/TransientTrack/data/TransientTrackBuilder.cfi"
 include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
 include "RecoBTag/ImpactParameter/data/impactParameter.cfi"
+
+# MVA
+RecoBTag/ImpactParameter/data/impactParameterMVAComputer.cfi
+RecoBTag/ImpactParameter/data/impactParameterMVAJetTags.cfi
+
+#B Jet Prob
+RecoBTag/ImpactParameter/data/jetBProbabilityComputer.cfi
+RecoBTag/ImpactParameter/data/jetBProbabilityJetTags.cfi
+
+#Jet Prob
+RecoBTag/ImpactParameter/data/jetProbabilityComputer.cfi
+RecoBTag/ImpactParameter/data/jetProbabilityJetTags.cfi
+
+
+# HighEff
+RecoBTag/ImpactParameter/data/trackCounting3D2ndComputer.cfi
+RecoBTag/ImpactParameter/data/trackCountingHighEffJetTags.cfi
+
+# High Purity
+RecoBTag/ImpactParameter/data/trackCounting3D3rdComputer.cfi
+RecoBTag/ImpactParameter/data/trackCountingHighPurJetTags.cfi
+
