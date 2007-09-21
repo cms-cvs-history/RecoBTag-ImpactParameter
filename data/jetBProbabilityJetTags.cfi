@@ -1,0 +1,7 @@
+     
+    module jetBProbabilityJetTags =  JetTagProducer 
+    { 
+      InputTag tagInfo = impactParameterTagInfos
+      string jetTagComputer = "jetBProbability"
+     }
+  
