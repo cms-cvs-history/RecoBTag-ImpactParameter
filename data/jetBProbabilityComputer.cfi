@@ -1,0 +1,10 @@
+    es_module jetBProbability = JetBProbabilityESProducer {
+        string ComponentName = "jetBProbability"
+	
+     PSet JetTagComputerPSet = {
+              int32  impactParamterType = 0 
+              double minimumProbability = 0.005
+              double deltaR = -1.
+        }
+    }
+    
