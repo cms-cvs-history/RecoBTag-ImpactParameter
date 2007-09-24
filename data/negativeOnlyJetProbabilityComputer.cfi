@@ -7,7 +7,9 @@
               int32  TrackIpSign = -1
               double minimumProbability = 0.005
               double deltaR = 0.3
-    
+	      double maximumDecayLength = 5.0
+	      double maximumDistanceToJetAxis = 0.07
+ 
     }
     }
     

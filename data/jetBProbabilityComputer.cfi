@@ -5,6 +5,9 @@
               int32  impactParamterType = 0 
               double minimumProbability = 0.005
               double deltaR = -1.
+	      double maximumDecayLength = 5.0
+	      double maximumDistanceToJetAxis = 0.07
+
         }
     }
     
