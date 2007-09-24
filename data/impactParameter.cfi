@@ -1,7 +1,7 @@
     
   
     module impactParameterTagInfos = TrackIPProducer {
-      InputTag jetTracks = jetTracksAssociator
+      InputTag jetTracks =  ic5JetTracksAssociatorAtVertex 
       InputTag primaryVertex = offlinePrimaryVerticesFromCTFTracks        
       bool computeProbabilities = true
       bool useDB = false
