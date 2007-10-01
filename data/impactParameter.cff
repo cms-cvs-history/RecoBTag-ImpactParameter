@@ -2,6 +2,9 @@ include "TrackingTools/TransientTrack/data/TransientTrackBuilder.cfi"
 include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
 include "RecoBTag/ImpactParameter/data/impactParameter.cfi"
 
+#tmp fix, use fake/frontier
+include "RecoBTag/TrackProbability/data/trackProbabilityFakeCond.cfi"
+
 include "RecoBTau/JetTagComputer/data/jetTagRecord.cfi"
 
 # MVA
