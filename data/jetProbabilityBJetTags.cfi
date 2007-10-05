@@ -1,5 +1,5 @@
      
-    module jetProbabilityJetTags =  JetTagProducer 
+    module jetProbabilityBJetTags =  JetTagProducer 
     { 
       InputTag tagInfo = impactParameterTagInfos
       string jetTagComputer = "jetProbability"

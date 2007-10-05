@@ -1,4 +1,4 @@
-     module trackCountingHighEffJetTags =  JetTagProducer 
+     module trackCountingHighEffBJetTags =  JetTagProducer 
     { 
       InputTag tagInfo = impactParameterTagInfos
       string jetTagComputer = "trackCounting3D2nd"
