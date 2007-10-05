@@ -4,7 +4,7 @@
      PSet JetTagComputerPSet = {
               int32  impactParamterType = 0 
               # 0 = use both, 1 = positive only, -1 = negative only
-              int32  TrackIpSign = 0
+              int32  trackIpSign = 1
               double minimumProbability = 0.005
               double deltaR = 0.3
 	      double maximumDecayLength = 5.0
