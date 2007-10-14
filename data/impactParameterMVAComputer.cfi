@@ -2,6 +2,6 @@ es_module impactParameterMVAComputer = GenericMVAJetTagESProducer {
 	string ComponentName    = "impactParameterMVAComputer"
 	PSet JetTagComputerPSet = {
 		bool useCategories		= false
-		string calibrationRecord	= "ImpactParameter"
+		string calibrationRecord	= "ImpactParameterMVA"
 	}
 }
