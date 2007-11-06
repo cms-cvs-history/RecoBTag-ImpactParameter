@@ -1,13 +1,10 @@
-    es_module trackCounting3D2nd = TrackCountingESProducer {
-        string ComponentName = "trackCounting3D2nd"
-     PSet JetTagComputerPSet = {
-     int32 nthTrack = 2
-     int32 impactParamterType = 0 
-     double deltaR = -1. # use default cut in ImpactParameterProducer 
-    double maximumDecayLength = 5.0 
-    double maximumDistanceToJetAxis = 0.07 
- 
-     }
+# trackCounting3D2nd btag computer
+es_module trackCounting3D2nd = TrackCountingESProducer {
+    PSet JetTagComputerPSet = {
+        int32  nthTrack                 = 2
+        int32  impactParamterType       = 0         # 0 = 3D, 1 = 2D
+        double deltaR                   = -1.       # use cut from JTA
+        double maximumDecayLength       = 5.0
+        double maximumDistanceToJetAxis = 0.07
     }
-
-    
+}
