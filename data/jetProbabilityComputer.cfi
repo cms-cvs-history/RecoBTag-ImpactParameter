@@ -1,11 +1,9 @@
 # jetProbability btag computer
 es_module jetProbability = JetProbabilityESProducer {
-    PSet JetTagComputerPSet = {
-        int32  impactParamterType       = 0         # 0 = 3D, 1 = 2D
-        int32  trackIpSign              = 1         # 0 = use both, 1 = positive only, -1 = negative only
-        double deltaR                   = 0.3
-        double minimumProbability       = 0.005
-        double maximumDecayLength       = 5.0
-        double maximumDistanceToJetAxis = 0.07
-    }
+    int32  impactParamterType       = 0         # 0 = 3D, 1 = 2D
+    int32  trackIpSign              = 1         # 0 = use both, 1 = positive only, -1 = negative only
+    double deltaR                   = 0.3
+    double minimumProbability       = 0.005
+    double maximumDecayLength       = 5.0
+    double maximumDistanceToJetAxis = 0.07
 }

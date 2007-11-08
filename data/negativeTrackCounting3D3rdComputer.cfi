@@ -1,10 +1,8 @@
 # negativeTrackCounting3D3rd btag computer
 es_module  negativeTrackCounting3D3rd = NegativeTrackCountingESProducer {
-    PSet JetTagComputerPSet = {
-        int32  nthTrack                 = 3
-        int32  impactParamterType       = 0         # 0 = 3D, 1 = 2D
-        double deltaR                   = -1.       # use cut from JTA
-        double maximumDecayLength       = 5.0
-        double maximumDistanceToJetAxis = 0.07
-    }
+    int32  nthTrack                 = 3
+    int32  impactParamterType       = 0         # 0 = 3D, 1 = 2D
+    double deltaR                   = -1.       # use cut from JTA
+    double maximumDecayLength       = 5.0
+    double maximumDistanceToJetAxis = 0.07
 }

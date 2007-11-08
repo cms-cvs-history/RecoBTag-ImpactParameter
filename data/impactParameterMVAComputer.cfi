@@ -1,7 +1,5 @@
 # impactParameterMVAComputer btag computer
 es_module impactParameterMVAComputer = GenericMVAJetTagESProducer {
-	PSet JetTagComputerPSet = {
-		bool useCategories		= false
-		string calibrationRecord	= "ImpactParameterMVA"
-	}
+	bool useCategories		= false
+	string calibrationRecord	= "ImpactParameterMVA"
 }
