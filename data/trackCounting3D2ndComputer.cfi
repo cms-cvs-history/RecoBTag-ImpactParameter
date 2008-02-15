@@ -1,0 +1,9 @@
+    es_module trackCounting3D2nd = TrackCountingESProducer {
+     int32 nthTrack = 2
+     int32 impactParamterType = 0 
+     double deltaR = -1. # use default cut in ImpactParameterProducer 
+    double maximumDecayLength = 5.0 
+    double maximumDistanceToJetAxis = 0.07 
+    }
+
+    

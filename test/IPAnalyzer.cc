@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.1 2007/05/09 14:11:13 arizzi Exp $
+// $Id: IPAnalyzer.cc,v 1.8 2007/10/01 08:00:35 arizzi Exp $
 //
 //
 
@@ -35,8 +35,8 @@ using namespace std;
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -44,7 +44,7 @@ using namespace std;
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 using namespace reco;
 
 //
@@ -99,16 +99,22 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TrackRefVector selTracks=it->selectedTracks();
       int n=selTracks.size();
       cout << "Sel tracks: " << n << endl; 
-      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl; 
-      for(int j=0;j< n;j++)
+// false      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl; 
+               GlobalPoint pv(it->primaryVertex()->position().x(),it->primaryVertex()->position().y(),it->primaryVertex()->position().z());
+  cout << pv << " vs " << it->primaryVertex()->position()   << endl;
+   for(int j=0;j< n;j++)
       {
+        TrackIPTagInfo::TrackIPData data = it->impactParameterData()[j];  
         cout << selTracks[j]->pt() << "\t";
-        cout << it->decayLengths()[j].value() << "\t";
-        cout << it->jetDistances()[j].value() << "\t";
-        cout << it->probabilities(0)[j]<< "\t";
-        cout << it->probabilities(1)[j]<< "\t";
-        cout << it->impactParameters(0)[j].significance() << "\t";
-        cout << it->impactParameters(1)[j].significance() << endl;
+        cout << it->probabilities(0)[j] << "\t";
+        cout << it->probabilities(1)[j] << "\t";
+        cout << data.ip3d.value() << "\t";
+        cout << data.ip3d.significance() << "\t";
+        cout << data.distanceToJetAxis << "\t";
+        cout << data.closestToJetAxis << "\t";
+        cout << (data.closestToJetAxis -pv).mag() << "\t";
+        cout << data.ip2d.value() << "\t";
+        cout << data.ip2d.significance() <<  endl;     
       }
 
   }
@@ -116,5 +122,4 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(IPAnalyzer);
+DEFINE_FWK_MODULE(IPAnalyzer);

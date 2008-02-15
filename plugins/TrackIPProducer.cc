@@ -13,40 +13,39 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.5 2007/06/08 00:44:57 elmer Exp $
+// $Id: TrackIPProducer.cc,v 1.8 2007/10/08 18:45:22 arizzi Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "RecoBTag/ImpactParameter/interface/TrackIPProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/TrackIPTagInfoFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
+#include "RecoBTag/ImpactParameter/plugins/TrackIPProducer.h"
+//#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 
-#include <iostream>
 
 using namespace std;
 using namespace reco;
@@ -58,19 +57,11 @@ using namespace edm;
 TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) : 
   m_config(iConfig),m_probabilityEstimator(0)  {
 
-  m_useDB=iConfig.getParameter<bool>("useDB");
-  if(!m_useDB)
-  {
-   edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
-   edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
-   m_probabilityEstimator=new HistogramProbabilityEstimator( new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str()),
-               new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str())) ;
-  }
   m_calibrationCacheId3D= 0;
   m_calibrationCacheId2D= 0;
   
-  m_associator = m_config.getParameter<string>("jetTracks");
-  m_primaryVertexProducer = m_config.getParameter<string>("primaryVertex");
+  m_associator = m_config.getParameter<InputTag>("jetTracks");
+  m_primaryVertexProducer = m_config.getParameter<InputTag>("primaryVertex");
 
   m_computeProbabilities = m_config.getParameter<bool>("computeProbabilities"); //FIXME: use or remove
   
@@ -103,7 +94,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
-   if(m_computeProbabilities && m_useDB) checkEventSetup(iSetup); //Update probability estimator if event setup is changed
+   if(m_computeProbabilities ) checkEventSetup(iSetup); //Update probability estimator if event setup is changed
  
   //input objects 
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
@@ -119,10 +110,11 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 
    //output collections 
-   reco::TrackIPTagInfoCollection * outCollection = new reco::TrackIPTagInfoCollection();
+  reco::TrackIPTagInfoCollection * outCollection = new reco::TrackIPTagInfoCollection();
 
    //use first pv of the collection
    //FIXME: use BeamSpot when pv is missing
+
    const  Vertex  *pv;
    edm::Ref<VertexCollection> * pvRef;
    bool pvFound = (primaryVertex->size() != 0);
@@ -133,19 +125,18 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
     else 
    { // create a dummy PV
-     Vertex::Error e;
-     e(0,0)=0.0015*0.0015;
-      e(1,1)=0.0015*0.0015;
-     e(2,2)=15.*15.;
-     Vertex::Point p(0,0,0);
-     pv=  new Vertex(p,e,1,1,1);
+     BeamSpot beamSpot;
+     beamSpot.dummy();
+     pv = new Vertex(beamSpot.position(), beamSpot.covariance3D(), -1, -1, 0);
      pvRef = new edm::Ref<VertexCollection>();
    }
    
    double pvZ=pv->z();
  
+
    int i=0;
    JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
+//   TwoTrackMinimumDistance minDist;
    for(; it != jetTracksAssociation->end(); it++, i++)
      {
         TrackRefVector tracks = it->second;
@@ -165,38 +156,60 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         TrackRefVector selectedTracks;
         vector<Measurement1D> ip3Dv,ip2Dv,dLenv,jetDistv;
         vector<float> prob2D,prob3D;
-       for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
-             const Track & track = **itTrack;
-     	     const TransientTrack & transientTrack = builder->build(&(**itTrack));
-           
-             //FIXME: this stuff is computed twice. transienttrack like container in IPTools for caching? 
-             //       is it needed? does it matter at HLT?
-             float distToAxis = IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
-             float dLen = IPTools::signedDecayLength3D(transientTrack,direction,*pv).second.value();
+        vector<TrackIPTagInfo::TrackIPData> ipData;
 
-         if( track.pt() > m_cutMinPt  &&                          // minimum pt
+        multimap<float,int> significanceMap; 
+        int ind =0;
+        for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
+             const Track & track = **itTrack;
+     	     const TransientTrack & transientTrack = builder->build(*itTrack);
+/*
+         cout << " pt " <<  track.pt() <<
+                 " d0 " <<  fabs(track.d0()) <<
+                 " #hit " <<    track.hitPattern().numberOfValidHits()<<
+                 " ipZ " <<   fabs(track.dz()-pvZ)<<
+                 " chi2 " <<  track.normalizedChi2()<<
+                 " #pixel " <<    track.hitPattern().numberOfValidPixelHits()<< endl;
+*/
+         if(     track.pt() > m_cutMinPt  &&                          // minimum pt
                  fabs(track.d0()) < m_cutMaxTIP &&                // max transverse i.p.
                  track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
-                 fabs(track.dz()-pvZ) < m_cutMaxLIP &&            // z-impact parameter
+                 fabs(track.dz()-pvZ) < m_cutMaxLIP &&            // z-impact parameter, loose only to reject PU
                  track.normalizedChi2() < m_cutMaxChiSquared &&   // normalized chi2
-                 fabs(distToAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 fabs(dLen) < m_cutMaxDecayLen &&                 // max decay len
                  track.hitPattern().numberOfValidPixelHits() >= m_cutPixelHits //min # pix hits 
            )     // quality cuts
         { 
          //Fill vectors
-         selectedTracks.push_back(*itTrack);
+         //TODO: what if .first is false?
          ip3Dv.push_back(IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second);
          ip2Dv.push_back(IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second);
          dLenv.push_back(IPTools::signedDecayLength3D(transientTrack,direction,*pv).second);
          jetDistv.push_back(IPTools::jetTrackDistance(transientTrack,direction,*pv).second);
+         TrackIPTagInfo::TrackIPData trackIp;
+         trackIp.ip3d=IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second;
+         trackIp.ip2d=IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second;
+         TrajectoryStateOnSurface tsos = IPTools::closestApproachToJet(transientTrack.impactPointState(), *pv, direction,transientTrack.field());
+         if (tsos.isValid())
+           trackIp.closestToJetAxis = tsos.globalPosition();
+         else
+           trackIp.closestToJetAxis = GlobalPoint(pv->x(), pv->y(), pv->z());
+//         trackIp.closestToJetAxis = tsos.isValid() ? tsos.globalPosition() : *pv;
+
+         //TODO:cross check if it is the same using other methods
+         trackIp.distanceToJetAxis=IPTools::jetTrackDistance(transientTrack,direction,*pv).second.value();
+         //TODO: fill distance,point to first track!!
+         significanceMap.insert(pair<float,int>(trackIp.ip3d.significance(), ind++) ); 
+
+         ipData.push_back(trackIp);
+         selectedTracks.push_back(*itTrack);
+        
          if(m_computeProbabilities) {
               //probability with 3D ip
-              pair<bool,double> probability =  m_probabilityEstimator->probability(0,ip3Dv.back().significance(),track,*(it->first),*pv);
+              pair<bool,double> probability =  m_probabilityEstimator->probability(0,ipData.back().ip3d.significance(),track,*(it->first),*pv);
               if(probability.first)  prob3D.push_back(probability.second); else  prob3D.push_back(-1.); 
               
               //probability with 2D ip
-              probability =  m_probabilityEstimator->probability(1,ip2Dv.back().significance(),track,*(it->first),*pv);
+              probability =  m_probabilityEstimator->probability(1,ipData.back().ip2d.significance(),track,*(it->first),*pv);
               if(probability.first)  prob2D.push_back(probability.second); else  prob2D.push_back(-1.); 
 
           } 
@@ -204,7 +217,31 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          } // quality cuts if
      
       } //track loop
-       TrackIPTagInfo tagInfo(ip2Dv,ip3Dv,dLenv,jetDistv,prob2D,prob3D,selectedTracks,
+       
+       if(ipData.size() >  1)
+       {
+        multimap<float,int>::iterator last=significanceMap.end();
+        last--;
+        int first=last->second;
+        last--;
+        int second=last->second;
+
+#if 0       
+        for(int n=0;n< ipData.size();n++)
+	{
+               int use;
+               if(n==first) use = second; else use = first;
+               TrajectoryStateOnSurface trackState1 =  builder->build(selectedTracks[n]).impactPointState();
+               TrajectoryStateOnSurface trackState2 =  builder->build(selectedTracks[use]).impactPointState();
+               std::pair<GlobalPoint,GlobalPoint> points = minDist.points(trackState1,trackState2);
+               float distance = ( points.first - points.second ).mag();
+	       ipData[n].closestToFirstTrack=points.first;
+               ipData[n].distanceToFirstTrack=distance;
+
+	}
+#endif
+       }
+       TrackIPTagInfo tagInfo(ipData,prob2D,prob3D,selectedTracks,
                               edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i),
                               *pvRef);
        outCollection->push_back(tagInfo); 
@@ -247,21 +284,8 @@ using namespace edm::eventsetup;
      const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
      const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
 
-     CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> * calib3d =  new CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML>;
-     CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> * calib2d =  new CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML>;
-
-     for(size_t i=0;i<ca3D->data.size(); i++)    
-     {
-        calib3d->addEntry(TrackClassFilterCategory(ca3D->data[i].category),ca3D->data[i].histogram); // convert category data to filtering category
-     }
-    
-     for(size_t i=0;i<ca2D->data.size(); i++)    
-     {
-        calib2d->addEntry(TrackClassFilterCategory(ca2D->data[i].category),ca2D->data[i].histogram); // convert category data to filtering category
-     }
-  
-     if(m_probabilityEstimator) delete m_probabilityEstimator;  //this should delete also old calib via estimator destructor
-     m_probabilityEstimator=new HistogramProbabilityEstimator(calib3d,calib2d);
+     if(m_probabilityEstimator) delete m_probabilityEstimator;  
+     m_probabilityEstimator=new HistogramProbabilityEstimator(ca3D,ca2D);
 
    }
    m_calibrationCacheId3D=cacheId3D;
@@ -269,6 +293,4 @@ using namespace edm::eventsetup;
 }
 
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(TrackIPProducer);
 
