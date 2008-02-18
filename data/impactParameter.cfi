@@ -2,7 +2,7 @@
   
     module impactParameterTagInfos = TrackIPProducer {
       InputTag jetTracks =  ic5JetTracksAssociatorAtVertex 
-      InputTag primaryVertex = offlinePrimaryVerticesFromCTFTracks        
+      InputTag primaryVertex = offlinePrimaryVertices     
       bool computeProbabilities = true
 
       int32  minimumNumberOfPixelHits = 2
