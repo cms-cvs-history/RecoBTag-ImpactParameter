@@ -1,7 +1,7 @@
 include "TrackingTools/TransientTrack/data/TransientTrackBuilder.cfi"
 include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
 include "RecoBTag/ImpactParameter/data/impactParameter.cfi"
-#include "RecoBTau/JetTagComputer/data/jetTagRecord.cfi"
+include "RecoBTau/JetTagComputer/data/jetTagRecord.cfi"
 
 # MVA
 include "RecoBTag/ImpactParameter/data/impactParameterMVAComputer.cfi"
