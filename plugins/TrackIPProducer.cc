@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.8 2007/10/08 18:45:22 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.15.2.2 2008/02/15 18:51:12 fwyzard Exp $
 //
 //
 
@@ -94,7 +94,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
-   if(m_computeProbabilities ) checkEventSetup(iSetup); //Update probability estimator if event setup is changed
+   if (m_computeProbabilities) checkEventSetup(iSetup); //Update probability estimator if event setup is changed
  
   //input objects 
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
