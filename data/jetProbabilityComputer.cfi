@@ -6,5 +6,6 @@ es_module jetProbability = JetProbabilityESProducer {
     double minimumProbability       = 0.005
     double maximumDecayLength       = 5.0
     double maximumDistanceToJetAxis = 0.07
-    int32  minimumNumberOfPixelHits = 2
+    string trackQualityClass = "any"
+
 }
