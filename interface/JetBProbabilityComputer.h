@@ -15,24 +15,13 @@ class JetBProbabilityComputer : public JetTagComputer
  public:
   JetBProbabilityComputer(const edm::ParameterSet  & parameters )
   { 
-     m_ipType           = parameters.getParameter<int>("impactParameterType");
+     m_ipType           = parameters.getParameter<int>("impactParamterType");
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
      m_deltaR           = parameters.getParameter<double>("deltaR");
      m_trackSign        = parameters.getParameter<int>("trackIpSign");
      m_nbTracks         = parameters.getParameter<unsigned int>("numberOfBTracks");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength");
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis");
- 
-     //
-     // access track quality class; "any" takes everything
-     //
-     std::string trackQualityType = parameters.getParameter<std::string>("trackQualityClass"); //used
-     m_trackQuality =  reco::TrackBase::qualityByName(trackQualityType);
-     m_useAllQualities = false;
-     if (trackQualityType == "any" || 
-	 trackQualityType == "Any" || 
-	 trackQualityType == "ANY" ) m_useAllQualities = true;
-
   }
  
   float discriminator(const reco::BaseTagInfo & ti) const 
@@ -54,9 +43,7 @@ class JetBProbabilityComputer : public JetTagComputer
           for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
            {
             if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
-		 (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
-
+                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen        // max decay len
              )
             {
     // Use only positive(or negative) tracks for B
@@ -129,8 +116,6 @@ double jetProbability( const std::vector<float> & v ) const
    unsigned int m_nbTracks;
    double  m_cutMaxDecayLen;
    double m_cutMaxDistToAxis;
-   reco::TrackBase::TrackQuality   m_trackQuality;
-   bool m_useAllQualities;
 
 };
 
