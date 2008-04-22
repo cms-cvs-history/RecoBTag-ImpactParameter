@@ -1,7 +1,4 @@
-     module trackCountingHighPurBJetTags =  JetTagProducer 
-    { 
-      InputTag tagInfo = impactParameterTagInfos
-      string jetTagComputer = "trackCounting3D3rd"
-     }
-     
- 
+module trackCountingHighPurBJetTags = JetTagProducer {
+	VInputTag tagInfos = { impactParameterTagInfos }
+	string jetTagComputer = "trackCounting3D3rd"
+}
