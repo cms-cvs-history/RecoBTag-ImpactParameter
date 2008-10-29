@@ -1,9 +1,0 @@
-# negativeTrackCounting3D2nd btag computer
-es_module negativeTrackCounting3D2nd = NegativeTrackCountingESProducer {
-    int32  nthTrack                 = 2
-    int32  impactParameterType       = 0         # 0 = 3D, 1 = 2D
-    double deltaR                   = -1.       # use cut from JTA
-    double maximumDecayLength       = 5.0
-    double maximumDistanceToJetAxis = 0.07
-    string trackQualityClass = "any"
-}
