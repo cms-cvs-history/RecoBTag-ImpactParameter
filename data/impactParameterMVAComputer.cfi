@@ -1,5 +1,0 @@
-# impactParameterMVAComputer btag computer
-es_module impactParameterMVAComputer = GenericMVAJetTagESProducer {
-	bool useCategories		= false
-	string calibrationRecord	= "ImpactParameterMVA"
-}
