@@ -1,4 +1,0 @@
-module trackCountingHighPurBJetTags = JetTagProducer {
-	VInputTag tagInfos = { impactParameterTagInfos }
-	string jetTagComputer = "trackCounting3D3rd"
-}
