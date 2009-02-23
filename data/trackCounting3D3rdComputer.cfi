@@ -1,9 +1,0 @@
-# trackCounting3D3rd btag computer
-es_module trackCounting3D3rd = TrackCountingESProducer {
-    int32  nthTrack                 = 3
-    int32  impactParameterType       = 0         # 0 = 3D, 1 = 2D
-    double deltaR                   = -1.       # use cut from JTA
-    double maximumDecayLength       = 5.0
-    double maximumDistanceToJetAxis = 0.07
-    string trackQualityClass = "any"
-}
