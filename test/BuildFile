@@ -8,6 +8,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=DataFormats/GeometryVector>
 
 <library file=IPAnalyzer.cc name=IPAnalyzer>
   <flags EDM_PLUGIN=1>
